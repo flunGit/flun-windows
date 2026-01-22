@@ -1,6 +1,6 @@
 {
   "name": "flun-windows",
-  "version": "1.0.0-beta.8",
+  "version": "1.0.0",
   "description": "Support for Windows services, event logging, UAC, and several helper methods for interacting with the OS.",
   "keywords": [
     "ngn",
@@ -14,12 +14,12 @@
     "sudo",
     "task"
   ],
-  "author": "Corey Butler <corey@coreybutler.com>",
+  "author": "flun <cn@flun.top>",
   "main": "lib/flun-windows.js",
   "preferGlobal": true,
   "dependencies": {
     "xml": "1.0.1",
-    "yargs": "^17.5.1"
+    "yargs": "^17.7.2"
   },
   "readmeFilename": "README.md",
   "scripts": {},
