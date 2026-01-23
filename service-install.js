@@ -1,7 +1,7 @@
-const { Service } = require('node-windows');
+const { Service } = require('flun-windows');
 
 const serviceName = 'NodeApp';
-const scriptPath = 'D:\\服务器\\NodeApp\\index.js';
+const scriptPath = 'D:\\www\\NodeApp\\index.js';
 
 console.log('正在检查服务状态...');
 

@@ -1,0 +1,9 @@
+# 忽略版本控制
+.git/
+.gitignore
+publish.ps1
+
+# 忽略IDE文件
+.vscode/
+
+维护.md
