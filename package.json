@@ -15,7 +15,7 @@
     "task"
   ],
   "author": "flun <cn@flun.top>",
-  "main": "lib/flun-windows.js",
+  "main": "./flun-windows.js",
   "preferGlobal": true,
   "dependencies": {
     "xml": "1.0.1",

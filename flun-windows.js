@@ -20,14 +20,14 @@ if (require('os').platform().indexOf('win32') < 0) {
 }
 
 // Add binary invokers
-module.exports = require('./binaries');
+module.exports = require('./lib/binaries');
 
 // Add command line shortcuts
-var commands = require('./cmd');
+var commands = require('./lib/cmd');
 for (var item in commands) {
   module.exports[item] = commands[item];
 }
 
 // Add daemon management capabilities
-module.exports.Service = require('./daemon');
-module.exports.EventLogger = require('./eventlog');
+module.exports.Service = require('./lib/daemon');
+module.exports.EventLogger = require('./lib/eventlog');
