@@ -27,6 +27,9 @@
     "type": "git",
     "url": "git://github.com/coreybutler/flun-windows"
   },
-  "license": "MIT",
-  "engine": "node >= 0.10.10"
+  "license": "ISC",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=6.0.0"
+  }
 }
