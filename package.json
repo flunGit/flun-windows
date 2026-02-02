@@ -15,7 +15,7 @@
     "task"
   ],
   "author": "flun <cn@flun.top>",
-  "main": "lib/flun-windows.js",
+  "main": "flun-windows.js",
   "scripts": {
     "postinstall": "node copy-files.js 2>&1 || echo \"复制文件失败\""
   },
