@@ -1,4 +1,4 @@
-const fs = require('fs').promises, path = require('path'),
+const fs = require('fs'), path = require('path'),
 
     // 要复制的文件位置和文件目标位置
     packageDir = __dirname, targetDir = path.resolve(packageDir, '../..'),
