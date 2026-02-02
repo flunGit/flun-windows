@@ -7,7 +7,7 @@ const fs = require('fs').promises, path = require('path'),
     sourceFile = path.join(packageDir, 'sevWin.js'), targetFile = path.join(targetDir, 'sevWin.js');
 
 function copyFile() {
-    console.log('🔍 检查 sevWin.js 文件...'), console.log(`📁 项目根目录:${projectRoot}`);
+    console.log('🔍 检查 sevWin.js 文件...'), console.log(`📁 项目根目录:${targetDir}`);
     try {
         if (fs.existsSync(targetFile)) return true;  // 如果存在sevWin.js文件，则返回true并结束函数
         console.log('⚠️ 在项目根目录未找到 sevWin.js 文件，正在创建...');
