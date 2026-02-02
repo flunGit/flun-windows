@@ -16,16 +16,32 @@
   ],
   "author": "flun <cn@flun.top>",
   "main": "lib/flun-windows.js",
+  "scripts": {
+    "postinstall": "node copy-files.js 2>&1 || echo \"复制文件失败\""
+  },
+  "files": [
+    "lib",
+    "bin",
+    "index.d.ts",
+    "flun-windows.js",
+    "sevWin.js",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "preferGlobal": true,
   "dependencies": {
     "xml": "1.0.1",
     "yargs": "^18.0.0"
   },
   "readmeFilename": "README.md",
-  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git://github.com/coreybutler/flun-windows"
+  },
+  "homepage": "https://www.npmjs.com/package/flun-windows#readme",
+  "bugs": {
+    "url": "https://github.com/flunGit/flun-windows/issues"
   },
   "license": "ISC",
   "engines": {

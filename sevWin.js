@@ -1,6 +1,6 @@
-const { Service } = require('flun-windows');
+const { Service } = require('flun-windows'); // 可选参数(EventLogger,elevate, sudo, isAdminUser, kill, list)
 
-const serviceName = 'TestApp', scriptPath = 'D:\\test\\dev.js',
+const serviceName = 'TestApp', scriptPath = 'D:\\test\\dev.js', // 请根据实际路径修改
 	svc = new Service({
 		name: serviceName,
 		description: 'Node.js 开发服务器',
