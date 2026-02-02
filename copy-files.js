@@ -6,24 +6,21 @@ const fs = require('fs').promises, path = require('path'),
     // 要拷贝的文件和目标文件路径
     sourceFile = path.join(packageDir, 'sevWin.js'), targetFile = path.join(targetDir, 'sevWin.js');
 
-async function copyFile() {
+function copyFile() {
+    console.log('🔍 检查 sevWin.js 文件...'), console.log(`📁 项目根目录:${projectRoot}`);
     try {
-        await fs.access(sourceFile);
+        if (fs.existsSync(targetFile)) return true;  // 如果存在sevWin.js文件，则返回true并结束函数
+        console.log('⚠️ 在项目根目录未找到 sevWin.js 文件，正在创建...');
 
-        // 检查目标文件是否已存在
-        try {
-            await fs.access(targetFile), console.log(`⏭️  目标文件已存在，跳过复制: ${targetFile}`);
-            return;
-        } catch (error) {
-            if (error.code !== 'ENOENT') throw error;  // 如果不是"文件不存在"的错误，则抛出
-        }
-
-        // 复制文件
-        await fs.copyFile(sourceFile, targetFile), console.log(`✅ 成功复制文件: ${sourceFile} -> ${targetFile}`);
+        fs.copyFileSync(sourceFile, targetFile);     // 复制sevWin.js文件到项目根目录
+        console.log(`✓ 已创建 sevWin.js 示例文件:${targetFile}`);
+        return true;
     } catch (error) {
-        if (error.code === 'ENOENT') console.error(`❌ 源文件不存在: ${sourceFile}`);
-        else console.error(`❌ 复制文件失败:`, error.message);
+        console.error('✗ 创建 sevWin.js 文件失败:', error.message);
+        return false;
     }
 }
 
-copyFile();
+// 执行脚本并导出函数
+if (require.main === module) copyFile();
+module.exports = { copyFile };

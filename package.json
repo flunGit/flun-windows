@@ -17,7 +17,7 @@
   "author": "flun <cn@flun.top>",
   "main": "flun-windows.js",
   "scripts": {
-    "postinstall": "node copy-files.js 2>&1 || echo \"复制文件失败\""
+    "postinstall": "node copy-files.js 2>&1"
   },
   "files": [
     "lib",
@@ -25,6 +25,7 @@
     "index.d.ts",
     "flun-windows.js",
     "sevWin.js",
+    "copy-files.js",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
