@@ -1,22 +1,22 @@
 const fs = require('fs'), path = require('path'),
 
     // 要复制的文件位置和文件目标位置
-    packageDir = __dirname, targetDir = path.resolve(packageDir, '../..'),
+    packageDir = __dirname, targetDir = path.resolve(packageDir, '../..'), fileName = 'sevWin.js',
 
     // 要拷贝的文件和目标文件路径
-    sourceFile = path.join(packageDir, 'sevWin.js'), targetFile = path.join(targetDir, 'sevWin.js');
+    sourceFile = path.join(packageDir, fileName), targetFile = path.join(targetDir, fileName);
 
 function copyFile() {
-    console.log('🔍 检查 sevWin.js 文件...'), console.log(`📁 项目根目录:${targetDir}`);
+    console.log(`🔍 检查 ${fileName} 文件...`), console.log(`📁 项目根目录:${targetDir}`);
     try {
-        if (fs.existsSync(targetFile)) return true;  // 如果存在sevWin.js文件，则返回true并结束函数
-        console.log('⚠️ 在项目根目录未找到 sevWin.js 文件，正在创建...');
+        if (fs.existsSync(targetFile)) return true;  // 如果目标文件存在,则返回true并结束函数
+        console.log(`⚠️ 在项目根目录未找到 ${fileName} 文件，正在创建...`);
 
-        fs.copyFileSync(sourceFile, targetFile);     // 复制sevWin.js文件到项目根目录
-        console.log(`✓ 已创建 sevWin.js 示例文件:${targetFile}`);
+        fs.copyFileSync(sourceFile, targetFile);     // 复制源文件到项目根目录
+        console.log(`✓ 已创建 ${fileName} 示例文件:${targetFile}`);
         return true;
     } catch (error) {
-        console.error('✗ 创建 sevWin.js 文件失败:', error.message);
+        console.error(`✗ 创建 ${fileName} 文件失败:`, error.message);
         return false;
     }
 }

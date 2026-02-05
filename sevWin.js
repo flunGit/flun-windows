@@ -6,7 +6,8 @@ const serviceName = 'TestApp', scriptPath = 'D:\\test\\dev.js', // 请根据实�
 		description: 'Node.js 开发服务器',
 		script: scriptPath,
 		nodeOptions: ['--harmony', '--max-old-space-size=4096'],
-		env: { name: "NODE_ENV", value: "production" }
+		env: { name: "NODE_ENV", value: "production" },
+		// sudo: { enabled: true }
 	});
 
 installService();

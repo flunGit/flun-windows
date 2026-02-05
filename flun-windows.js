@@ -3,7 +3,7 @@
  * @description 提供Windows特定功能，如提升权限、事件日志记录和服务管理
  * @author Corey Butler
  */
-const os = require('os'), { elevate, sudo, isAdminUser } = require('./lib/binaries'), { kill, list } = require('./lib/cmd'),
+const { elevate, sudo, isAdminUser, os } = require('./lib/binaries'), { kill, list } = require('./lib/cmd'),
   Service = require('./lib/daemon'), EventLogger = require('./lib/eventlog');
 
 // 平台检查
