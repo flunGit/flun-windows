@@ -59,9 +59,9 @@ declare module 'flun-windows' {
     export interface LoggingConfig {
         /** 日志模式 */
         mode?: 'append' | 'reset' | 'none' | 'roll-by-time' | 'roll-by-size';
-        /** roll-by-time模式的时间格式模式 */
+        /** roll-by-time按时间滚动模式 */
         pattern?: string;
-        /** roll-by-size模式的尺寸阈值 */
+        /** roll-by-size按大小滚动模式 */
         sizeThreshold?: number;
         /** roll-by-size模式保留的文件数 */
         keepFiles?: number;

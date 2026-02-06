@@ -9,7 +9,7 @@ flun-windows 提供以下功能：
 - **服务管理**：将 Node.js 脚本作为原生 Windows 服务运行（含监控功能）
 - **事件日志**：写入 Windows 事件日志
 - **系统命令**：
-  - _权限提升_：以管理员权限运行命令（会触发 UAC 确认）
+  - _权限提升_：以管理员权限运行命令(会触发 UAC 确认)
   - _Sudo 执行_：以管理员身份执行命令
   - _权限检测_：检测当前用户是否具有管理员权限
   - _进程列表_：列出运行中的 Windows 进程/服务
@@ -273,7 +273,7 @@ win.elevate('echo "Hello World" && whoami'); // 无回调
 ```js
 const win = require('flun-windows');
 
-// 基本用法 - 命令、密码和回调
+// 基本用法 - 命令、选项和回调
 win.sudo('echo "Hello World" && whoami', {}, (error, stdout, stderr) => {
     if (error) {
         console.error('执行失败:', error);
@@ -286,7 +286,7 @@ win.sudo('echo "Hello World" && whoami', {}, (error, stdout, stderr) => {
 // 带选项参数
 win.sudo('echo "Hello World" && whoami', {cwd:'C:\\'}, callback);
 
-win.sudo('echo "Hello World" && whoami', ); // 无回调
+win.sudo('echo "Hello World" && whoami' ); // 无回调
 ```
 
 ## 管理员权限检测

@@ -1,35 +1,32 @@
-Set shell = CreateObject("Shell.Application")
+Set sh = CreateObject("Shell.Application")
 Set fso = CreateObject("Scripting.FileSystemObject")
 
-tempDir = fso.GetSpecialFolder(2)  ' 获取系统临时目录
-outputFile = fso.BuildPath(tempDir, "flun_el_output.txt")
-exitFile = fso.BuildPath(tempDir, "flun_el_exit.txt")
-tempBatch = fso.BuildPath(tempDir, "flun_el.bat")
-tempCmdFile = fso.BuildPath(tempDir, "flun_el.cmd")
+tmp = fso.GetSpecialFolder(2) ' 获取系统临时目录
+outFile = fso.BuildPath(tmp, "flun_el_output.txt")
+batFile = fso.BuildPath(tmp, "flun_el.bat")
+cmdFile = fso.BuildPath(tmp, "flun_el.cmd")
 
-' 创建临时批处理文件
-Set batchFile = fso.CreateTextFile(tempBatch, True)
-batchFile.WriteLine "@echo off"
-batchFile.WriteLine "chcp 65001 > nul"
+' 创建文件
+With fso.CreateTextFile(cmdFile, True)
+    .WriteLine "@echo off"
+    .WriteLine "{command}"  ' 实际命令
+    .Close
+End With
 
-' 创建中间命令文件
-Set cmdFile = fso.CreateTextFile(tempCmdFile, True)
-cmdFile.WriteLine "@echo off"
-cmdFile.WriteLine "{command}"
-cmdFile.Close
+With fso.CreateTextFile(batFile, True)
+    .WriteLine "@echo off"
+    .WriteLine "chcp 65001 > nul"
+    .WriteLine "call """ & cmdFile & """ > """ & outFile & """ 2>&1"
+    .Close
+End With
 
-' 在批处理文件中调用命令文件并重定向所有输出
-batchFile.WriteLine "call """ & tempCmdFile & """ > """ & outputFile & """ 2>&1"
-batchFile.WriteLine "echo %ERRORLEVEL% > """ & exitFile & """"
-batchFile.Close
+' 执行并清理
+sh.ShellExecute "cmd.exe", "/c """ & batFile & """", "", "runas", 0
 
-shell.ShellExecute "cmd.exe", "/c """ & tempBatch & """", "", "runas", 0
-For i = 1 To 150
-    If fso.FileExists(exitFile) Then Exit For
+' 等待执行
+Do Until fso.FileExists(outFile)
     WScript.Sleep 100
-Next
+Loop
 
-On Error Resume Next
-fso.DeleteFile tempBatch, True
-fso.DeleteFile tempCmdFile, True
-On Error GoTo 0
+fso.DeleteFile batFile, True
+fso.DeleteFile cmdFile, True
