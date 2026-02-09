@@ -1,9 +1,45 @@
 // index.d.ts
+/**
+ * Windows功能模块 主要功能：
+ * ```js
+ * Service{};           // 服务管理类
+ * EventLogger{};       // 事件日志记录器类
+ * elevate();           // 权限提升(机制:ShellExecute + "runas")
+ * sudo();              // 权限提升(机制:sudo.exe)
+ * isAdminUser();       // 检查当前用户是否拥有管理员权限
+ * kill();              // 结束指定PID进程
+ * list();              // 列出服务器上正在运行的进程
+ * ```
+ * ---
+ *   -
+ * ```js
+ *  // 基础示例
+ *  const { Service } = require('flun-windows');
+ *
+ *  // 创建服务对象
+ *  const svc = new Service({
+ *       name: 'Hello World',                  // 服务名称
+ *       description: 'nodejs.org 示例服务器',  // 服务描述
+ *       script: 'C:\\path\\to\\helloworld.js',// 启动服务的入口脚本路径
+ *
+ *       // 传递给node进程的选项
+ *       nodeOptions: [
+ *         '--harmony',
+ *         '--max-old-space-size=4096'
+ *       ]
+ *   });
+ * ```
+ *   -
+ */
 declare module 'flun-windows' {
     import { EventEmitter } from 'events';
-    import { ExecOptions, ExecCallback } from 'child_process';
+    import { ExecOptions } from 'child_process';
 
     // ============ 基础类型和接口 ============
+    /**
+     * 子进程执行回调函数类型
+     */
+    export type ExecCallback = (error: Error | null, stdout: string, stderr: string) => void;
 
     /**
      * 进程信息接口
@@ -128,6 +164,23 @@ declare module 'flun-windows' {
     /**
      * 事件日志记录器类
      * 用于向Windows事件查看器写入日志
+     * ```js
+     *  // 配置示例
+     *  const { EventLogger } = require('flun-windows');
+     *
+     *  // 创建日志实例
+     *  const log = new EventLogger('服务名称');
+     *      log.info('基本信息');
+     *      log.warn('警告信息');
+     *      log.error('错误信息');
+     *      log.auditSuccess('审计成功');
+     *      log.auditFailure('审计失败');
+     *
+     *      // 自定义事件代码
+     *      log.error('特殊事件', 1002, ()=>{
+     *      console.log('日志已写入');
+     *  });
+     * ```
      */
     export class EventLogger {
         /**
@@ -201,6 +254,24 @@ declare module 'flun-windows' {
     /**
      * Windows服务管理类
      * 用于将Node.js脚本作为Windows服务进行管理
+     * ```js
+     *  // 配置示例
+     *  const { Service } = require('flun-windows');
+     *
+     *  // 创建服务对象
+     *  const svc = new Service({
+     *       name: 'Hello World',                  // 服务名称
+     *       description: 'nodejs.org 示例服务器',  // 服务描述
+     *       script: 'C:\\path\\to\\helloworld.js',// 启动服务的入口脚本路径
+     *
+     *       // 传递给node进程的选项
+     *       nodeOptions: [
+     *         '--harmony',
+     *         '--max-old-space-size=4096'
+     *       ]
+     *   });
+     * svc.install();
+     * ```
      */
     export class Service extends EventEmitter {
         /**
@@ -238,6 +309,26 @@ declare module 'flun-windows' {
          * @event alreadyinstalled - 如果服务已安装时触发
          * @event invalidinstallation - 如果检测到安装但缺少必需文件时触发
          * @event error - 在错误发生时触发
+         * @example
+         * ```js
+         * const { Service } = require('flun-windows');
+         * const svc = new Service({
+         *   name: 'Hello World',
+         *   description: 'nodejs.org 示例服务器',
+         *   script: 'C:\\path\\to\\helloworld.js',
+         *   nodeOptions: [
+         *     '--harmony',
+         *     '--max-old-space-size=4096'
+         *   ]
+         * });
+         *
+         * // 监听安装完成事件
+         * svc.on('install', ()=>{
+         *   svc.start();
+         * });
+         *
+         * svc.install();
+         * ```
          */
         install(dir?: string): Promise<void>;
 
@@ -247,6 +338,26 @@ declare module 'flun-windows' {
          * @returns Promise<void>
          * @event uninstall - 当卸载过程完成时触发
          * @event alreadyuninstalled - 如果服务已卸载时触发
+         * @example
+         * ```js
+         * const { Service } = require('flun-windows');
+         * const svc = new Service({
+         *   name: 'Hello World',
+         *   script: 'C:\\path\\to\\helloworld.js'
+         * });
+         *
+         * svc.on('uninstall', ()=>{
+         *   console.log('卸载完成');
+         *   console.log('服务是否存在：', svc.exists);
+         *   // svc.exists 返回值说明：
+         *   // 0: 服务和相关文件没有
+         *   // 1: 服务已注册但相关文件不存在（异常情况）
+         *   // 2: 服务未注册但相关文件存在（文件残留）
+         *   // 3: 服务已注册且相关文件存在（正常状态）
+         * });
+         *
+         * svc.uninstall();
+         * ```
          */
         uninstall(waitTime?: number): Promise<void>;
 
@@ -254,6 +365,20 @@ declare module 'flun-windows' {
          * 启动现有服务
          * @returns Promise<void>
          * @event start - 当服务启动时触发
+         * @example
+         * ```js
+         * const { Service } = require('flun-windows');
+         * const svc = new Service({
+         *   name: 'Hello World',
+         *   script: 'C:\\path\\to\\helloworld.js'
+         * });
+         *
+         * svc.on('start', ()=>{
+         *   console.log('服务已启动');
+         * });
+         *
+         * svc.start();
+         * ```
          */
         start(): Promise<void>;
 
@@ -262,12 +387,36 @@ declare module 'flun-windows' {
          * @returns Promise<void>
          * @event stop - 当服务停止时触发
          * @event alreadystopped - 当服务已经停止时触发
+         * @example
+         * ```js
+         * const { Service } = require('flun-windows');
+         * const svc = new Service({
+         *   name: 'Hello World',
+         *   script: 'C:\\path\\to\\helloworld.js'
+         * });
+         *
+         * svc.on('stop', ()=>{
+         *   console.log('服务已停止');
+         * });
+         *
+         * svc.stop();
+         * ```
          */
         stop(): Promise<void>;
 
         /**
          * 重启现有服务
          * @returns Promise<void>
+         * @example
+         * ```js
+         * const { Service } = require('flun-windows');
+         * const svc = new Service({
+         *   name: 'Hello World',
+         *   script: 'C:\\path\\to\\helloworld.js'
+         * });
+         *
+         * svc.restart();
+         * ```
          */
         restart(): Promise<void>;
 
@@ -379,6 +528,27 @@ declare module 'flun-windows' {
      * @param cmd 要使用提升权限执行的命令
      * @param options 传递给child_process.exec的选项
      * @param callback 执行完成后的回调函数
+     * @example
+     * ```js
+     * const win = require('flun-windows');
+     *
+     * // 基本用法
+     * win.elevate('echo "Hello World" && whoami',{}, (error, stdout, stderr) => {
+     *     if (error) {
+     *         console.error('执行失败:', error);
+     *     } else {
+     *         console.log('执行成功，输出:', stdout);
+     *         console.log('错误输出:', stderr);
+     *     }
+     * });
+     *
+     * // 带选项参数
+     * win.elevate('echo "Hello World" && whoami', { cwd:'C:\\' }, callback);
+     *
+     * // 多种参数组合
+     * win.elevate('echo "Hello World" && whoami', (err, stdout)=> { }); // options视为回调
+     * win.elevate('echo "Hello World" && whoami'); // 无回调
+     * ```
      */
     export function elevate(
         cmd: string,
@@ -391,6 +561,25 @@ declare module 'flun-windows' {
      * @param cmd 要使用提升权限执行的命令
      * @param options 传递给child_process.exec的选项
      * @param callback 执行完成后的回调函数
+     * @example
+     * ```js
+     * const win = require('flun-windows');
+     *
+     * // 基本用法 - 命令、选项和回调
+     * win.sudo('echo "Hello World" && whoami', {}, (error, stdout, stderr) => {
+     *     if (error) {
+     *         console.error('执行失败:', error);
+     *     } else {
+     *         console.log('执行成功，输出:', stdout);
+     *         console.log('错误输出:', stderr);
+     *     }
+     * });
+     *
+     * // 带选项参数
+     * win.sudo('echo "Hello World" && whoami', {cwd:'C:\\'}, callback);
+     *
+     * win.sudo('echo "Hello World" && whoami' ); // 无回调
+     * ```
      */
     export function sudo(
         cmd: string,
@@ -401,14 +590,29 @@ declare module 'flun-windows' {
     /**
      * 检查当前用户是否拥有管理员权限
      * @param callback 回调函数，接收布尔值表示是否为管理员
+     * @example
+     * ```js
+     * const win = require('flun-windows');
+     * win.isAdminUser(isAdmin => {
+     *   if (isAdmin) console.log('当前用户是管理员');
+     *   else console.log('当前用户不是管理员');
+     * });
+     * ```
      */
     export function isAdminUser(callback: (isAdmin: boolean) => void): void;
 
     /**
      * 结束指定进程
-     * @param pid 进程ID
+     * @param pid 进程PID
      * @param callback 执行完成后的回调函数
      * @param force 是否强制结束进程（默认: false）
+     * @example
+     * ```js
+     * const win = require('flun-windows');
+     *  win.kill(进程PID, () => {
+     *    console.log('进程已终止');
+     *  });
+     * ```
      */
     export function kill(
         pid: number,
@@ -420,6 +624,13 @@ declare module 'flun-windows' {
      * 列出服务器上正在运行的进程
      * @param callback 回调函数，接收进程对象数组
      * @param verbose 是否显示详细信息（默认: false）
+     * @example
+     * ```js
+     * const win = require('flun-windows');
+     *  win.list(processes => {
+     *    console.log(processes);
+     *  }, true); // true 显示详细信息
+     * ```
      */
     export function list(
         callback: (processes: ProcessInfo[]) => void,
