@@ -13,7 +13,8 @@
     "event logging",
     "elevate",
     "sudo",
-    "task"
+    "task",
+    "flun"
   ],
   "author": "flun <cn@flun.top>",
   "main": "flun-windows.js",
@@ -39,7 +40,7 @@
   "readmeFilename": "README.md",
   "repository": {
     "type": "git",
-    "url": "git://github.com/coreybutler/flun-windows"
+    "url": "git+https://github.com/flunGit/flun-windows.git"
   },
   "homepage": "https://www.npmjs.com/package/flun-windows#readme",
   "bugs": {
