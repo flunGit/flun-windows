@@ -1,0 +1,61 @@
+# 文件名：.github/workflows/publish.yml
+
+# 给这个工作流起个名字
+name: Publish Package to npm
+
+# 1. 何时做？ (on)
+#    当有代码推送到 'main' 分支时触发
+on:
+  push:
+    branches:
+      - main
+
+# 2. 做什么？ (jobs)
+jobs:
+  publish:
+    # 让机器人在最新版的 Ubuntu 系统上工作
+    runs-on: ubuntu-latest
+
+    # 定义步骤
+    steps:
+      # 步骤1：把代码从 GitHub 仓库下载到机器人工作的电脑上
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 步骤2：安装 Node.js 环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '25' # 你可以改成你喜欢的版本，比如 '18' 或 '22'
+          registry-url: 'https://registry.npmjs.org/'
+
+      # 步骤3：安装项目依赖 (运行 npm ci 比 npm install 更快更稳定)
+      - name: Install dependencies
+        run: npm ci
+
+      # 步骤4：运行测试 (如果有的话)
+      # - name: Run tests
+      #   run: npm test
+
+      # 步骤5：构建代码 (如果打包需要，比如用 TypeScript 或打包工具)
+      # - name: Build
+      #   run: npm run build
+
+      # 步骤6：发布到 npm！
+      - name: Publish to npm
+        run: npm publish
+        env:
+          # 告诉 npm 使用我们之前在 GitHub 设置的“秘密”作为认证令牌
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # 步骤7：创建 Git 标签 (可选，但推荐)
+      - name: Get package version
+        id: package-version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Create Git Tag
+        run: |
+          git config user.name "flunGit"
+          git config user.email "cn@flun.top"
+          git tag v${{ steps.package-version.outputs.version }}
+          git push origin v${{ steps.package-version.outputs.version }}
