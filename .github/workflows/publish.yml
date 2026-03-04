@@ -1,61 +1,81 @@
-# 文件名：.github/workflows/publish.yml
-
-# 给这个工作流起个名字
+# 工作流名称，将显示在 GitHub Actions 页面
 name: Publish Package to npm
 
-# 1. 何时做？ (on)
-#    当有代码推送到 'main' 分支时触发
+# 触发条件：当代码推送到 main 分支时触发
 on:
   push:
     branches:
       - main
 
-# 2. 做什么？ (jobs)
+# 定义要执行的任务
 jobs:
   publish:
-    # 让机器人在最新版的 Ubuntu 系统上工作
+    # 运行环境：最新版 Ubuntu
     runs-on: ubuntu-latest
-
-    # 定义步骤
     steps:
-      # 步骤1：把代码从 GitHub 仓库下载到机器人工作的电脑上
+      # 步骤1：将代码检出到运行环境中
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 步骤2：安装 Node.js 环境
+      # 步骤2：设置 Node.js 环境
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '25' # 你可以改成你喜欢的版本，比如 '18' 或 '22'
+          node-version: '25'                    # 可根据项目需要调整
           registry-url: 'https://registry.npmjs.org/'
 
-      # 步骤3：安装项目依赖 (运行 npm ci 比 npm install 更快更稳定)
+      # 步骤3：安装项目依赖（使用 package-lock.json 确保一致性）
       - name: Install dependencies
         run: npm ci
 
-      # 步骤4：运行测试 (如果有的话)
-      # - name: Run tests
-      #   run: npm test
+      # 步骤4：获取本地 package.json 中的版本号
+      - name: Get current version from package.json
+        id: current-version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      # 步骤5：构建代码 (如果打包需要，比如用 TypeScript 或打包工具)
-      # - name: Build
-      #   run: npm run build
+      # 步骤5：获取 npm 上已发布的最新版本号
+      # 使用 npm view <包名> version 命令，如果包尚未发布则命令会失败，我们捕获错误并输出 "none"
+      - name: Get latest published version
+        id: published-version
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          # 尝试获取已发布版本，若失败则设为 "none"
+          PUBLISHED_VERSION=$(npm view $PACKAGE_NAME version 2>/dev/null || echo "none")
+          echo "version=$PUBLISHED_VERSION" >> $GITHUB_OUTPUT
 
-      # 步骤6：发布到 npm！
+      # 步骤6：比较两个版本号，决定是否需要发布
+      - name: Compare versions
+        id: check-version
+        run: |
+          CURRENT=${{ steps.current-version.outputs.version }}
+          PUBLISHED=${{ steps.published-version.outputs.version }}
+          if [ "$CURRENT" = "$PUBLISHED" ]; then
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+            echo "✅ Version unchanged ($CURRENT), skipping publish."
+          else
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "🚀 Version changed from $PUBLISHED to $CURRENT, will publish."
+          fi
+
+      # 步骤7：仅当版本发生变化时，执行 npm publish
       - name: Publish to npm
+        if: steps.check-version.outputs.should_publish == 'true'
         run: npm publish
         env:
-          # 告诉 npm 使用我们之前在 GitHub 设置的“秘密”作为认证令牌
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      # 步骤7：创建 Git 标签 (可选，但推荐)
-      - name: Get package version
+      # 步骤8：可选 - 创建 Git 标签（仅在发布后执行）
+      # 获取当前版本号（用于标签名）
+      - name: Get package version for tagging
+        if: steps.check-version.outputs.should_publish == 'true'
         id: package-version
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
+      # 步骤9：配置 Git 用户信息并创建标签推送到仓库
       - name: Create Git Tag
+        if: steps.check-version.outputs.should_publish == 'true'
         run: |
-          git config user.name "flunGit"
-          git config user.email "cn@flun.top"
+          git config user.name "GitHub"           # 替换为你的 GitHub 用户名
+          git config user.email "cn@flun.top"          # 替换为你的 GitHub 邮箱
           git tag v${{ steps.package-version.outputs.version }}
           git push origin v${{ steps.package-version.outputs.version }}
